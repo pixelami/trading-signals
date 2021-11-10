@@ -3,28 +3,31 @@
     "url": "https://github.com/bennycode/trading-signals/issues"
   },
   "dependencies": {
-    "@types/big.js": "6.0.2",
-    "big.js": "6.0.3"
+    "@types/big.js": "6.1.2",
+    "big.js": "6.1.1"
   },
   "description": "Technical indicators to run technical analysis with JavaScript / TypeScript.",
   "devDependencies": {
-    "@types/jasmine": "3.6.6",
-    "@typescript-eslint/eslint-plugin": "4.17.0",
-    "@typescript-eslint/parser": "4.17.0",
-    "eslint": "7.22.0",
-    "eslint-config-prettier": "8.1.0",
-    "eslint-plugin-prettier": "3.3.1",
-    "eslint-plugin-typescript-sort-keys": "1.5.0",
+    "@types/benchmark": "2.1.1",
+    "@types/jasmine": "3.10.1",
+    "@types/node": "16.11.6",
+    "@typescript-eslint/eslint-plugin": "4.33.0",
+    "@typescript-eslint/parser": "4.33.0",
+    "benchmark": "2.1.4",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-typescript-sort-keys": "2.0.0",
     "generate-changelog": "1.8.0",
     "husky": "4.3.8",
-    "jasmine": "3.6.4",
-    "lint-staged": "10.5.4",
+    "jasmine": "3.10.0",
+    "lint-staged": "11.2.6",
     "nyc": "15.1.0",
-    "prettier": "2.2.1",
-    "pretty-quick": "3.1.0",
+    "prettier": "2.4.1",
+    "pretty-quick": "3.1.1",
     "rimraf": "3.0.2",
-    "ts-node": "9.1.1",
-    "typescript": "4.2.3"
+    "ts-node": "10.4.0",
+    "typescript": "4.4.4"
   },
   "engines": {
     "node": ">= 10.9",
@@ -32,6 +35,8 @@
   },
   "files": [
     "dist",
+    "!dist/start",
+    "!dist/test",
     "!dist/**/*.test.*"
   ],
   "homepage": "https://documentup.com/bennycode/trading-signals",
@@ -82,12 +87,13 @@
     "postversion": "git push origin && git push origin --tags && npm publish",
     "prettier": "prettier --ignore-path .gitignore --loglevel silent \"**/*.{json,scss,yml}\"",
     "preversion": "git checkout main && git pull && yarn && yarn test && yarn dist",
-    "release:major": "generate-changelog -M -x \"chore,docs,refactor,style,test\" && yarn changelog:commit && npm version major",
-    "release:minor": "generate-changelog -m -x \"chore,docs,refactor,style,test\" && yarn changelog:commit && npm version minor",
-    "release:patch": "generate-changelog -p -x \"chore,docs,refactor,style,test\" && yarn changelog:commit && npm version patch",
+    "release:major": "generate-changelog -M -x \"chore,test\" && yarn changelog:commit && npm version major",
+    "release:minor": "generate-changelog -m -x \"chore,test\" && yarn changelog:commit && npm version minor",
+    "release:patch": "generate-changelog -p -x \"chore,test\" && yarn changelog:commit && npm version patch",
+    "start:benchmark": "ts-node ./src/start/startBenchmark.ts",
     "test": "nyc --nycrc-path=nyc.config.coverage.json jasmine --config=jasmine.json",
     "test:dev": "nyc --nycrc-path=nyc.config.json jasmine --config=jasmine.json",
     "test:types": "yarn lint:types"
   },
-  "version": "1.6.0"
+  "version": "2.4.1"
 }

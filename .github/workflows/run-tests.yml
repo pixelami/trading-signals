@@ -1,0 +1,38 @@
+name: 'Run Tests'
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install, lint, and test
+        run: |
+          yarn install
+          yarn lint
+          yarn test
+        if: |
+          contains(github.event.commits[0].message, '[skip ci]') == false &&
+          contains(github.event.commits[0].message, '[ci skip]') == false
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v1.0.5
+        with:
+          fail_ci_if_error: false
+          file: ./coverage/lcov.info
+          flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          yml: ./codecov.yml
+      - name: Release
+        uses: xt0rted/action-gh-release@testing
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          generate_release_notes: true

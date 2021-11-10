@@ -1,32 +1,36 @@
-import Big, {BigSource} from 'big.js';
-import {NotEnoughDataError, SMMA} from '..';
-import {SimpleIndicator} from '../Indicator';
-
-export type ATRCandle = {close: BigSource; high: BigSource; low: BigSource};
+import Big from 'big.js';
+import {NotEnoughDataError} from '../error';
+import {BigIndicatorSeries} from '../Indicator';
+import {MovingAverage} from '../MA/MovingAverage';
+import {MovingAverageTypeContext} from '../MA/MovingAverageTypeContext';
+import {SMMA} from '../SMMA/SMMA';
+import {HighLowClose} from '../util';
 
 /**
- * Average True Range
+ * Average True Range (ATR)
+ * Type: Volatility
  *
- * The idea of ranges is that they show the commitment or enthusiasm of traders. Large or increasing ranges suggest
- * traders prepared to continue to bid up or sell down a stock through the course of the day. Decreasing range suggests
- * waning interest.
+ * The ATR was developed by **John Welles Wilder, Jr.**. The idea of ranges is that they show the commitment or
+ * enthusiasm of traders. Large or increasing ranges suggest traders prepared to continue to bid up or sell down a
+ * stock through the course of the day. Decreasing range indicates declining interest.
+ *
+ * @see https://www.investopedia.com/terms/a/atr.asp
  */
-export class ATR implements SimpleIndicator {
-  private readonly smma: SMMA;
-  private readonly candles: ATRCandle[] = [];
+export class ATR extends BigIndicatorSeries {
+  private readonly candles: HighLowClose[] = [];
+  private readonly smoothing: MovingAverage;
+  private prevCandle: HighLowClose | undefined;
 
-  private result: Big | undefined;
-  private prevCandle: ATRCandle | undefined;
-
-  constructor(public readonly interval: number) {
-    this.smma = new SMMA(interval);
+  constructor(public readonly interval: number, SmoothingIndicator: MovingAverageTypeContext = SMMA) {
+    super();
+    this.smoothing = new SmoothingIndicator(interval);
   }
 
-  get isStable(): boolean {
+  override get isStable(): boolean {
     return this.candles.length > this.interval;
   }
 
-  update(candle: ATRCandle): void {
+  override update(candle: HighLowClose): Big | void {
     this.candles.push(candle);
 
     if (!this.prevCandle) {
@@ -44,20 +48,22 @@ export class ATR implements SimpleIndicator {
 
     const trueRange = this.trueRange(this.prevCandle, candle);
 
-    this.smma.update(trueRange);
+    this.smoothing.update(trueRange);
 
-    this.result = this.smma.getResult();
     this.prevCandle = candle;
+    if (this.smoothing.isStable) {
+      return this.setResult(this.smoothing.getResult());
+    }
   }
 
-  getResult(): Big {
+  override getResult(): Big {
     if (!this.result) {
       throw new NotEnoughDataError();
     }
     return this.result;
   }
 
-  private trueRange(prevCandle: ATRCandle, currentCandle: ATRCandle): Big {
+  private trueRange(prevCandle: HighLowClose, currentCandle: HighLowClose): Big {
     const prevClose = new Big(prevCandle.close);
     const low = new Big(currentCandle.low);
     const high = new Big(currentCandle.high);

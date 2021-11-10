@@ -6,7 +6,9 @@ Technical indicators and overlays to run technical analysis with JavaScript / Ty
 
 ## Motivation
 
-Provide a TypeScript implementation for common technical indicators with arbitrary-precision decimal arithmetic.
+The "trading-signals" library provides a TypeScript implementation for common technical indicators with arbitrary-precision decimal arithmetic.
+
+The main focus of this library is on the accuracy of calculations, but using the [faster implementations](./README.md#faster-implementations) it is also suitable for calculations where performance is important.
 
 ## Features
 
@@ -14,21 +16,39 @@ Provide a TypeScript implementation for common technical indicators with arbitra
 - **Typed.** Source code is 100% TypeScript. No need to install external typings.
 - **Tested.** Code coverage is 100%. No surprises when using it.
 
-## Supported Indicators
+## Technical Indicator Types
+
+- Trend indicators: Measure the direction of a trend
+- Volume indicators: Measure the strength of a trend (based on volume)
+- Volatility indicators: Measure the strength of a trend (based on price)
+- Momentum indicators: Measure the speed of price movement
+
+## Supported Technical Indicators
 
 1. Acceleration Bands (ABANDS)
+1. Accelerator Oscillator (AC)
 1. Average Directional Index (ADX)
 1. Average True Range (ATR)
+1. Awesome Oscillator (AO)
 1. Bollinger Bands (BBANDS)
 1. Center of Gravity (CG)
 1. Double Exponential Moving Average (DEMA)
-1. Double Moving Average (DMA)
+1. Dual Moving Average (DMA)
 1. Exponential Moving Average (EMA)
+1. Momentum (MOM)
 1. Moving Average Convergence Divergence (MACD)
 1. Rate-of-Change (ROC)
 1. Relative Strength Index (RSI)
 1. Simple Moving Average (SMA)
 1. Smoothed Moving Average (SMMA)
+1. Stochastic Oscillator (STOCH)
+1. Wilder's Smoothed Moving Average (WSMA)
+
+Utility Methods:
+
+1. Average
+1. Standard Deviation
+1. Rolling Standard Deviation
 
 ## Usage
 
@@ -54,9 +74,13 @@ console.log(sma.getResult().valueOf()); // "20"
 console.log(sma.getResult().toFixed(2)); // "20.00"
 ```
 
-## Good to know
+### When to use `update(...)`?
 
-This library draws attention to miscalculations by throwing errors instead of returning default values. If you call `getResult()`, before an indicator has received the required amount of input values, a `NotEnoughDataError` will be thrown.
+You have to call an indicator's `update` method to enter input data. The update method may or may not return a result from the indicator depending on whether the minimum amount of input data has been reached.
+
+### When to use `getResult()`?
+
+You can call `getResult()` at any point in time, but it throws errors unless an indicator has received the minimum amount of data. If you call `getResult()`, before an indicator has received the required amount of input values, a `NotEnoughDataError` will be thrown.
 
 **Example:**
 
@@ -84,13 +108,41 @@ sma.update(70);
 console.log(sma.getResult().valueOf()); // "40"
 ```
 
+Most of the time, the minimum amount of data depends on the interval / time period used.
+
+## Performance
+
+### Arbitrary-precision decimal arithmetic
+
+JavaScript is very bad with numbers. When calculating `0.1 + 0.2` it shows you `0.30000000000000004`, but the truth is `0.3`.
+
+![JavaScript arithmetic](./js-arithmetic.png)
+
+As specified by the ECMAScript standard, all arithmetic in JavaScript uses [double-precision floating-point arithmetic](https://en.wikipedia.org/wiki/Double-precision_floating-point_format), which is only accurate until certain extent. To increase the accuracy and avoid miscalculations, the [trading-signals](https://github.com/bennycode/trading-signals) library uses [big.js][1] which offers arbitrary-precision decimal arithmetic. However, this arbitrary accuracy comes with a downside: Calculations with it are not as performant as with the primitive data type `number`.
+
+### Faster implementations
+
+To get the best of both worlds (high accuracy & high performance), you will find two implementations of each indicator (e.g. `SMA` & `FasterSMA`). The standard implementation uses big.js and the `Faster`-prefixed version uses common `number` types. Use the standard one when you need high accuracy and use the `Faster`-one when you need high performance.
+
+### Benchmarks
+
+You can run `yarn start:benchmark` to see the runtime performance of each technical indicator on your machine. This will give you an understanding of which indicators can be calculated faster than others.
+
+## Disclaimer
+
+The information and publications of [trading-signals](https://github.com/bennycode/trading-signals) do not constitute financial advice, investment advice, trading advice or any other form of advice. All results from [trading-signals](https://github.com/bennycode/trading-signals) are intended for information purposes only.
+
+It is very important to do your own analysis before making any investment based on your own personal circumstances. If you need financial advice or further advice in general, it is recommended that you identify a relevantly qualified individual in your jurisdiction who can advise you accordingly.
+
 ## Alternatives
 
 - [Tulip Indicators (ANSI C)](https://github.com/TulipCharts/tulipindicators)
 - [Pandas TA (Python)](https://github.com/twopirllc/pandas-ta)
+- [Jesse Trading Bot Indicators (Python)](https://docs.jesse.trade/docs/indicators/reference.html)
 - [libindicators (C#)](https://github.com/mgfx/libindicators)
 - [Cloud9Trader Indicators (JavaScript)](https://github.com/Cloud9Trader/TechnicalIndicators)
 - [Crypto Trading Hub Indicators (TypeScript)](https://github.com/anandanand84/technicalindicators)
+- [Technical Analysis Library using Pandas and Numpy (Python)](https://github.com/bukosabino/ta)
 
 ## Maintainers
 
