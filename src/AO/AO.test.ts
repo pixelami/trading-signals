@@ -1,10 +1,11 @@
-import {AO} from './AO';
+import {AO, FasterAO} from './AO';
 import {NotEnoughDataError} from '../error';
+import {HighLowNumber} from '../util';
 
 describe('AO', () => {
   describe('getResult', () => {
     it('works with an interval setting of 5/34', () => {
-      // Test data taken from:
+      // Test data verified with:
       // https://github.com/TulipCharts/tulipindicators/blob/v0.8.0/tests/extra.txt#L17-L20
       const highs = [
         32.11, 27.62, 28.26, 28.02, 26.93, 26.65, 27.25, 27.58, 27.9, 28.9, 29.34, 29.82, 29.54, 29.3, 29.5, 29.5, 29.7,
@@ -32,19 +33,30 @@ describe('AO', () => {
         5.3673, 4.5294, 4.764, 4.1044, 1.6913, -1.3769, -4.2062, -7.7196, -10.6241, -11.4972, -9.6358, -7.9344,
       ];
       const ao = new AO(5, 34);
+      const fasterAO = new FasterAO(5, 34);
 
       for (let i = 0; i < lows.length; i++) {
-        const newResult = ao.update(lows[i], highs[i]);
-        if (ao.isStable) {
-          expect(newResult!).not.toBeUndefined();
+        const candle: HighLowNumber = {
+          high: highs[i],
+          low: lows[i],
+        };
+        const result = ao.update(candle);
+        const fasterResult = fasterAO.update(candle);
+        if (ao.isStable && fasterAO.isStable) {
+          expect(result).not.toBeUndefined();
+          expect(fasterResult).not.toBeUndefined();
           const actual = ao.getResult().toFixed(4);
-          const expected = aos.shift();
-          expect(parseFloat(actual)).toBe(expected!);
+          const expected = aos.shift()!;
+          expect(parseFloat(actual)).toBe(expected);
+          expect(fasterResult!.toFixed(4)).toBe(expected.toFixed(4));
         }
       }
 
       expect(ao.lowest!.toFixed(2)).toBe('-11.50');
+      expect(fasterAO.lowest!.toFixed(2)).toBe('-11.50');
+
       expect(ao.highest!.toFixed(2)).toBe('33.35');
+      expect(fasterAO.highest!.toFixed(2)).toBe('33.35');
     });
 
     it('throws an error when there is not enough input data', () => {

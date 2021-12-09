@@ -1,76 +1,86 @@
-import Big from 'big.js';
+import Big, {BigSource} from 'big.js';
+import {NotEnoughDataError} from './error';
 
-export interface Indicator<T = Big> {
-  getResult(): T;
+export interface Indicator<Result = Big, Input = BigSource> {
+  getResult(): Result;
 
   isStable: boolean;
 
-  update(...args: any): void | T;
+  update(input: Input): void | Result;
 }
-
-/** Defines indicators which only require a single value (usually the price) to get updated. */
-export interface SimpleIndicator<T = Big> extends Indicator<T> {
-  update(value: T): void | T;
-}
-
-export type SimpleNumberIndicator = SimpleIndicator<number>;
 
 /**
  * Tracks results of an indicator over time and memorizes the highest & lowest result.
  */
-export interface IndicatorSeries<T = Big> extends Indicator<T> {
-  highest?: T;
-  lowest?: T;
+export interface IndicatorSeries<Result = Big, Input = BigSource> extends Indicator<Result, Input> {
+  highest?: Result;
+  lowest?: Result;
 }
 
-export abstract class BigIndicatorSeries implements IndicatorSeries {
+export abstract class BigIndicatorSeries<Input = BigSource> implements IndicatorSeries<Big, Input> {
+  /** Highest return value over the lifetime (not interval!) of the indicator. */
   highest?: Big;
+  /** Lowest return value over the lifetime (not interval!) of the indicator. */
   lowest?: Big;
   protected result?: Big;
 
-  abstract isStable: boolean;
+  get isStable(): boolean {
+    return this.result !== undefined;
+  }
 
-  abstract getResult(): Big;
-
-  protected setResult(value: Big): Big {
-    this.result = value;
-
-    if (!this.highest || value.gt(this.highest)) {
-      this.highest = value;
-    }
-
-    if (!this.lowest || value.lt(this.lowest)) {
-      this.lowest = value;
+  getResult(): Big {
+    if (this.result === undefined) {
+      throw new NotEnoughDataError();
     }
 
     return this.result;
   }
 
-  abstract update(...args: any): void;
+  protected setResult(value: Big): Big {
+    if (this.highest === undefined || value.gt(this.highest)) {
+      this.highest = value;
+    }
+
+    if (this.lowest === undefined || value.lt(this.lowest)) {
+      this.lowest = value;
+    }
+
+    return (this.result = value);
+  }
+
+  abstract update(input: Input): void | Big;
 }
 
-export abstract class NumberIndicatorSeries implements IndicatorSeries<number> {
+export abstract class NumberIndicatorSeries<Input = number> implements IndicatorSeries<number, Input> {
+  /** Highest return value over the lifetime (not interval!) of the indicator. */
   highest?: number;
+  /** Lowest return value over the lifetime (not interval!) of the indicator. */
   lowest?: number;
   protected result?: number;
 
-  abstract isStable: boolean;
+  get isStable(): boolean {
+    return this.result !== undefined;
+  }
 
-  abstract getResult(): number;
-
-  protected setResult(value: number): number {
-    this.result = value;
-
-    if (!this.highest || value > this.highest) {
-      this.highest = value;
-    }
-
-    if (!this.lowest || value < this.lowest) {
-      this.lowest = value;
+  getResult(): number {
+    if (this.result === undefined) {
+      throw new NotEnoughDataError();
     }
 
     return this.result;
   }
 
-  abstract update(...args: any): void;
+  protected setResult(value: number): number {
+    if (this.highest === undefined || value > this.highest) {
+      this.highest = value;
+    }
+
+    if (this.lowest === undefined || value < this.lowest) {
+      this.lowest = value;
+    }
+
+    return (this.result = value);
+  }
+
+  abstract update(input: Input): void | number;
 }

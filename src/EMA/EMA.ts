@@ -24,7 +24,7 @@ export class EMA extends MovingAverage {
     const price = new Big(_price);
 
     // If it's the first update there is no previous result and a default has to be set.
-    if (!this.result) {
+    if (this.result === undefined) {
       this.result = price;
     }
 
@@ -32,15 +32,11 @@ export class EMA extends MovingAverage {
   }
 
   override getResult(): Big {
-    if (!this.result) {
-      throw new NotEnoughDataError();
-    }
-
     if (this.pricesCounter < this.interval) {
       throw new NotEnoughDataError();
     }
 
-    return this.result;
+    return this.result!;
   }
 
   override get isStable(): boolean {
@@ -66,7 +62,7 @@ export class FasterEMA extends FasterMovingAverage {
     this.pricesCounter++;
 
     // If it's the first update there is no previous result and a default has to be set.
-    if (!this.result) {
+    if (this.result === undefined) {
       this.result = price;
     }
 
@@ -74,15 +70,11 @@ export class FasterEMA extends FasterMovingAverage {
   }
 
   override getResult(): number {
-    if (!this.result) {
-      throw new NotEnoughDataError();
-    }
-
     if (this.pricesCounter < this.interval) {
       throw new NotEnoughDataError();
     }
 
-    return this.result;
+    return this.result!;
   }
 
   override get isStable(): boolean {

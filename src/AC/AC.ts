@@ -1,9 +1,9 @@
-import {BigIndicatorSeries} from '../Indicator';
-import Big, {BigSource} from 'big.js';
-import {NotEnoughDataError} from '../error';
-import {AO} from '../AO/AO';
-import {SMA} from '../SMA/SMA';
-import {MOM} from '../MOM/MOM';
+import {BigIndicatorSeries, NumberIndicatorSeries} from '../Indicator';
+import Big from 'big.js';
+import {AO, FasterAO} from '../AO/AO';
+import {FasterSMA, SMA} from '../SMA/SMA';
+import {FasterMOM, MOM} from '../MOM/MOM';
+import {HighLow, HighLowNumber} from '../util';
 
 /**
  * Accelerator Oscillator (AC)
@@ -17,7 +17,7 @@ import {MOM} from '../MOM/MOM';
  *
  * @see https://www.thinkmarkets.com/en/indicators/bill-williams-accelerator/
  */
-export class AC extends BigIndicatorSeries {
+export class AC extends BigIndicatorSeries<HighLow> {
   public readonly ao: AO;
   public readonly momentum: MOM;
   public readonly signal: SMA;
@@ -25,28 +25,41 @@ export class AC extends BigIndicatorSeries {
   constructor(public readonly shortAO: number, public readonly longAO: number, public readonly signalInterval: number) {
     super();
     this.ao = new AO(shortAO, longAO);
-    this.signal = new SMA(signalInterval);
     this.momentum = new MOM(1);
+    this.signal = new SMA(signalInterval);
   }
 
-  override get isStable(): boolean {
-    return this.result !== undefined;
-  }
-
-  override getResult(): Big {
-    if (!this.result) {
-      throw new NotEnoughDataError();
-    }
-
-    return this.result;
-  }
-
-  override update(low: BigSource, high: BigSource): void | Big {
-    const ao = this.ao.update(low, high);
+  override update(input: HighLow): void | Big {
+    const ao = this.ao.update(input);
     if (ao) {
       this.signal.update(ao);
       if (this.signal.isStable) {
         const result = this.setResult(ao.sub(this.signal.getResult()));
+        this.momentum.update(result);
+        return this.result;
+      }
+    }
+  }
+}
+
+export class FasterAC extends NumberIndicatorSeries<HighLowNumber> {
+  public readonly ao: FasterAO;
+  public readonly momentum: FasterMOM;
+  public readonly signal: FasterSMA;
+
+  constructor(public readonly shortAO: number, public readonly longAO: number, public readonly signalInterval: number) {
+    super();
+    this.ao = new FasterAO(shortAO, longAO);
+    this.momentum = new FasterMOM(1);
+    this.signal = new FasterSMA(signalInterval);
+  }
+
+  override update(input: HighLowNumber): void | number {
+    const ao = this.ao.update(input);
+    if (ao) {
+      this.signal.update(ao);
+      if (this.signal.isStable) {
+        const result = this.setResult(ao - this.signal.getResult());
         this.momentum.update(result);
         return this.result;
       }

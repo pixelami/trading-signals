@@ -1,3 +1,53 @@
+### 3.2.0 (2021-12-06)
+
+##### New Features
+
+- **DMA:** Add faster implementation ([#375](https://github.com/bennycode/trading-signals/pull/375)) ([c8ddcbde](https://github.com/bennycode/trading-signals/commit/c8ddcbde59293f37247bb8092ddaa63bb7451cea))
+- **ADX,DX:** Add faster implementation ([#374](https://github.com/bennycode/trading-signals/pull/374)) ([575c4d4b](https://github.com/bennycode/trading-signals/commit/575c4d4ba7c1b0f413c86052918213d24d29bba4))
+- **AC,AO,MOM:** Add faster implementation ([#373](https://github.com/bennycode/trading-signals/pull/373)) ([c821c64b](https://github.com/bennycode/trading-signals/commit/c821c64b63c078e29d28f92d206006a2aa5aeacd))
+- **ABANDS:** Add faster implementation ([#372](https://github.com/bennycode/trading-signals/pull/372)) ([74841cbc](https://github.com/bennycode/trading-signals/commit/74841cbc9e6fbb5fef66bf218899c8e4d0514f34))
+
+##### Refactors
+
+- Run faster implementation after original implementation ([1583ed54](https://github.com/bennycode/trading-signals/commit/1583ed549f760b2be0acbea114431ae1a7c028b2))
+
+### 3.1.0 (2021-11-29)
+
+##### New Features
+
+- **STOCHRSI:** Add Stochastic RSI ([#370](https://github.com/bennycode/trading-signals/pull/370)) ([ebc4964c](https://github.com/bennycode/trading-signals/commit/ebc4964c02e4672dc9fb06fa68387c508a097445))
+- **BBANDS:** Return values on update ([e3a96c80](https://github.com/bennycode/trading-signals/commit/e3a96c8078c010bda4c1a7c00bf9e1fc0a04b7ec))
+- **MAD:** Return values on update ([77e6c36a](https://github.com/bennycode/trading-signals/commit/77e6c36ae1905e718d515cc3a1d93b393d2d2e7f))
+
+## 3.0.0 (2021-11-19)
+
+##### Documentation Changes
+
+- Use reference-style link definition ([#360](https://github.com/bennycode/trading-signals/pull/360)) ([74aa0133](https://github.com/bennycode/trading-signals/commit/74aa0133aba2820bd055839550f6a9233b55f3c7))
+
+##### New Features
+
+- **ATR,WSMA:** Add faster implementations ([#367](https://github.com/bennycode/trading-signals/pull/367)) ([65823cbf](https://github.com/bennycode/trading-signals/commit/65823cbf9ac6677564a580bc0c022c6e0461b416))
+- **DX:** Add Directional Movement Index (DX) ([#365](https://github.com/bennycode/trading-signals/pull/365)) ([2c51d7c0](https://github.com/bennycode/trading-signals/commit/2c51d7c0fc35ce3342414b4130edb64d4652e693))
+- **TR:** Add True Range (TR) implementation ([#361](https://github.com/bennycode/trading-signals/pull/361)) ([9c4a6d02](https://github.com/bennycode/trading-signals/commit/9c4a6d02bcecdde6dbe5b568c6ec547512164364))
+
+##### Refactors
+
+- **ADX:** Return direct result and +DI & -DI only via getters ([#368](https://github.com/bennycode/trading-signals/pull/368)) ([2c0818fe](https://github.com/bennycode/trading-signals/commit/2c0818fee37038836f8cfc979a791359d7a6f8bd))
+- **SMMA,WSMA:** Replaced SMMA with WSMA ([#362](https://github.com/bennycode/trading-signals/pull/362)) ([80a0f2c4](https://github.com/bennycode/trading-signals/commit/80a0f2c4f736cab79d1ee10f8ffe22f03eb7be63))
+- Remove "isStable" override ([77901cfb](https://github.com/bennycode/trading-signals/commit/77901cfb07ba1cc96fc39421791359fdb7aeb1e1))
+
+### 2.5.0 (2021-11-12)
+
+##### Documentation Changes
+
+- Map mean to average ([2ef901cc](https://github.com/bennycode/trading-signals/commit/2ef901cc06dbb659f54986f5cda3a3ab2863c480))
+
+##### New Features
+
+- **CCI:** Add faster CCI implementation ([#356](https://github.com/bennycode/trading-signals/pull/356)) ([f90e95b6](https://github.com/bennycode/trading-signals/commit/f90e95b69dd207eb6bc0c43e67c804fabb7a6677))
+- **CCI,MAD:** Add Commodity Channel Index (CCI) & Mean Absolute Deviation (MAD) ([#355](https://github.com/bennycode/trading-signals/pull/355)) ([754398f3](https://github.com/bennycode/trading-signals/commit/754398f3f94d364d138a84d955602add83ecea5b))
+
 #### 2.4.1 (2021-11-07)
 
 ##### Documentation Changes

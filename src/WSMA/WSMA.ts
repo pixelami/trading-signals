@@ -1,7 +1,7 @@
 import Big, {BigSource} from 'big.js';
 import {MovingAverage} from '../MA/MovingAverage';
-import {NotEnoughDataError} from '../error';
-import {SMA} from '../SMA/SMA';
+import {FasterSMA, SMA} from '../SMA/SMA';
+import {NumberIndicatorSeries} from '../Indicator';
 
 /**
  * Wilder's Smoothed Moving Average (WSMA)
@@ -12,9 +12,10 @@ import {SMA} from '../SMA/SMA';
  * respond more slowly to price changes.
  *
  * Synonyms:
+ * - Modified Exponential Moving Average (MEMA)
+ * - Smoothed Moving Average (SMMA)
  * - Welles Wilder's Smoothing (WWS)
  * - Wilder's Moving Average (WMA)
- * - Modified Exponential Moving Average (MEMA)
  *
  * @see https://tlc.thinkorswim.com/center/reference/Tech-Indicators/studies-library/V-Z/WildersSmoothing
  */
@@ -30,29 +31,32 @@ export class WSMA extends MovingAverage {
 
   update(price: BigSource): Big | void {
     const sma = this.indicator.update(price);
-
     if (this.result) {
       const smoothed = new Big(price).minus(this.result).mul(this.smoothingFactor);
       return this.setResult(smoothed.plus(this.result));
-    } else if (!this.result && sma) {
+    } else if (this.result === undefined && sma) {
       return this.setResult(sma);
     }
   }
+}
 
-  override getResult(): Big {
-    if (!this.result) {
-      throw new NotEnoughDataError();
-    }
+export class FasterWSMA extends NumberIndicatorSeries {
+  private readonly indicator: FasterSMA;
+  private readonly smoothingFactor: number;
 
-    return this.result;
+  constructor(public readonly interval: number) {
+    super();
+    this.indicator = new FasterSMA(interval);
+    this.smoothingFactor = 1 / this.interval;
   }
 
-  override get isStable(): boolean {
-    try {
-      this.getResult();
-      return true;
-    } catch {
-      return false;
+  update(price: number): number | void {
+    const sma = this.indicator.update(price);
+    if (this.result !== undefined) {
+      const smoothed = (price - this.result) * this.smoothingFactor;
+      return this.setResult(smoothed + this.result);
+    } else if (this.result === undefined && sma !== undefined) {
+      return this.setResult(sma);
     }
   }
 }
